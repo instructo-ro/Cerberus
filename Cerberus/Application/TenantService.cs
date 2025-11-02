@@ -27,9 +27,9 @@ public class TenantService
         return await _tenantRepository.CreateTenantAsync(name);
     }
 
-    public async Task<Guid> CreateProjectAsync(Guid tenantId, string name, string description, string environment)
+    public async Task<Guid> CreateProjectAsync(Guid tenantId, string name, string description)
     {
-        return await _tenantRepository.CreateProjectAsync(tenantId, name, description, environment);
+        return await _tenantRepository.CreateProjectAsync(tenantId, name, description);
     }
 
     public async Task<Guid> CreateAnimaAsync(Guid projectId, string definition, string value, string description,EnvironmentType environment)

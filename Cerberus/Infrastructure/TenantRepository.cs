@@ -155,7 +155,7 @@ public class TenantRepository
         return await connection.ExecuteScalarAsync<Guid>(sql, new { Name = name });
     }
 
-    public async Task<Guid> CreateProjectAsync(Guid tenantId, string name, string description, string environment)
+    public async Task<Guid> CreateProjectAsync(Guid tenantId, string name, string description)
     {
         using var connection = _connectionFactory.CreateConnection();
 
@@ -168,8 +168,7 @@ public class TenantRepository
         {
             TenantId = tenantId,
             Name = name,
-            Description = description,
-            Environment = environment
+            Description = description
         });
     }
 
