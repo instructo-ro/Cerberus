@@ -191,16 +191,16 @@ public class TenantRepository
         });
     }
 
-    public async Task<bool> DeleteAnimaAsync(Guid animaId)
+    public async Task<bool> DeleteAnimaAsync(string definition)
     {
         using var connection = _connectionFactory.CreateConnection();
 
-        const string sql = "DELETE FROM animas WHERE id = @Id";
-        var rowsAffected = await connection.ExecuteAsync(sql, new { Id = animaId });
+        const string sql = "DELETE FROM animas WHERE Definition = @definition";
+        var rowsAffected = await connection.ExecuteAsync(sql, new { Definition = definition });
         return rowsAffected > 0;
     }
 
-    public async Task<bool> UpdateAnimaAsync(Guid animaId, string value, string? description = null)
+    public async Task<bool> UpdateAnimaAsync(string definition, string value, string? description = null)
     {
         using var connection = _connectionFactory.CreateConnection();
 
@@ -208,11 +208,11 @@ public class TenantRepository
             UPDATE animas
             SET value = @Value,
                 description = COALESCE(@Description, description)
-            WHERE id = @Id";
+            WHERE Definition = @Definition";
 
         var rowsAffected = await connection.ExecuteAsync(sql, new
         {
-            Id = animaId,
+            Definition = definition,
             Value = value,
             Description = description
         });

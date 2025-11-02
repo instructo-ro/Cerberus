@@ -37,13 +37,13 @@ public class TenantService
         return await _tenantRepository.CreateAnimaAsync(projectId, definition, value, description);
     }
 
-    public async Task<bool> DeleteAnimaAsync(Guid animaId)
+    public async Task<bool> DeleteAnimaAsync(string definition)
     {
-        return await _tenantRepository.DeleteAnimaAsync(animaId);
+        return await _tenantRepository.DeleteAnimaAsync(definition);
     }
 
-    public async Task<bool> UpdateAnimaAsync(Guid animaId, string value, string? description = null)
+    public async Task<bool> UpdateAnimaAsync(string definition, string value, string? description = null)
     {
-        return await _tenantRepository.UpdateAnimaAsync(animaId, value, description);
+        return await _tenantRepository.UpdateAnimaAsync(definition, value, description);
     }
 }

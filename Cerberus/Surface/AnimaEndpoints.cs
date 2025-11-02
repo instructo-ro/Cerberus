@@ -95,10 +95,10 @@ public static class AnimaEndpoints
         .WithDescription("Creates a new secret (anima) in the project with a definition name, value, and optional description.");
 
         // PUT update an existing anima's value
-        group.MapPut("/{animaId:guid}", async (
+        group.MapPut("/{definition:string}", async (
             Guid tenantId,
             Guid projectId,
-            Guid animaId,
+            string definition,
             [FromBody] UpdateAnimaRequest request,
             HttpContext httpContext,
             [FromServices] TenantService tenantService,
@@ -118,14 +118,14 @@ public static class AnimaEndpoints
             // This prevents information disclosure about resource existence
             if(tenant is null || project is null || !apiKeyService.HasProjectAccess(apiKey, tenantId, projectId))
             {
-                return Results.NotFound(new { message = $"Anima with ID {animaId} not found" });
+                return Results.NotFound(new { message = $"Anima with ID {definition} not found" });
             }
 
-            var success = await tenantService.UpdateAnimaAsync(animaId, request.Value, request.Description);
+            var success = await tenantService.UpdateAnimaAsync(definition, request.Value, request.Description);
 
             if(!success)
             {
-                return Results.NotFound(new { message = $"Anima with ID {animaId} not found" });
+                return Results.NotFound(new { message = $"Anima with ID {definition} not found" });
             }
 
             return Results.Ok(new { message = "Anima updated successfully" });
@@ -135,10 +135,10 @@ public static class AnimaEndpoints
         .WithDescription("Updates the value and/or description of an existing secret.");
 
         // DELETE remove an anima
-        group.MapDelete("/{animaId:guid}", async (
+        group.MapDelete("/{definition:guid}", async (
             Guid tenantId,
             Guid projectId,
-            Guid animaId,
+            string definition,
             HttpContext httpContext,
             [FromServices] TenantService tenantService,
             [FromServices] ApiKeyService apiKeyService) =>
@@ -157,14 +157,14 @@ public static class AnimaEndpoints
             // This prevents information disclosure about resource existence
             if(tenant is null || project is null || !apiKeyService.HasProjectAccess(apiKey, tenantId, projectId))
             {
-                return Results.NotFound(new { message = $"Anima with ID {animaId} not found" });
+                return Results.NotFound(new { message = $"Anima with ID {definition} not found" });
             }
 
-            var success = await tenantService.DeleteAnimaAsync(animaId);
+            var success = await tenantService.DeleteAnimaAsync(definition);
 
             if(!success)
             {
-                return Results.NotFound(new { message = $"Anima with ID {animaId} not found" });
+                return Results.NotFound(new { message = $"Anima with ID {definition} not found" });
             }
 
             return Results.Ok(new { message = "Anima deleted successfully" });
