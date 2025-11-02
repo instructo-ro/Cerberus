@@ -58,6 +58,12 @@ namespace Cerberus
                     }
                 });
             });
+            if(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") =="Development")
+            {
+                builder.Services.AddCors(options =>
+                    options.AddPolicy("AllowAll", (builder)=>builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin())
+                );
+            }
 
             // Database
             var dbName = Environment.GetEnvironmentVariable("DATABASE_NAME");
@@ -94,6 +100,8 @@ namespace Cerberus
                         .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
                         .WithOpenApiRoutePattern("/cerberus/swagger/{documentName}/swagger.json");
                 });
+                app.UseCors("AllowAll");
+
             }
             app.UseHttpsRedirection();
 

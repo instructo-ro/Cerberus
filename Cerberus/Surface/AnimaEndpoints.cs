@@ -1,6 +1,7 @@
 using Cerberus.Application;
 using Cerberus.Domain;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cerberus.Surface;
@@ -11,11 +12,38 @@ public static class AnimaEndpoints
     {
         var group = application.MapGroup("/cerberus/tenants/{tenantId:guid}/projects/{projectId:guid}/animas")
             .WithTags("Secrets (Animas)")
-            .WithDescription("Manage secrets (animas) within projects");
+            .WithDescription("Manage secrets (animas) within projects, for UI client");
 
         MapAnimaManagement(group);
+        application.MapSpecialRetrievalEndpoint();
 
         return application;
+    }
+
+    private static void MapSpecialRetrievalEndpoint(this WebApplication webApplication)
+    {
+        webApplication.MapGet("/animas/{definition}",async (
+            string definition,
+            [FromQuery] string environment, 
+            HttpContext httpContext, 
+            [FromServices] ApiKeyService keyService,
+            [FromServices] TenantService tenantService
+            ) =>
+        {
+            var apiKey = httpContext.GetApiKey();
+            if(apiKey is null)
+            {
+                return Results.Unauthorized();
+            }
+            var tenant = await tenantService.GetTenantByIdAsync(apiKey.TenantId);
+            var project = tenant?.Projects.FirstOrDefault(p => p.Id==apiKey.ProjectId);
+            var anima = project?.Animas.FirstOrDefault(a => a.Definition.Equals(definition, StringComparison.OrdinalIgnoreCase) && a.Environment.ToString() == environment);
+            if(anima is null)
+            {
+                return Results.Unauthorized();
+            }
+            return Results.Ok(anima);
+        }).WithName("Anima retrieval");
     }
 
     private static void MapAnimaManagement(RouteGroupBuilder group)
@@ -51,6 +79,8 @@ public static class AnimaEndpoints
         .WithName("GetAnimaByDefinition")
         .WithSummary("Get secret by name")
         .WithDescription("Retrieves a specific secret by its definition name (e.g., 'DATABASE_URL').");
+
+
 
         // POST create a new anima (secret)
         group.MapPost("", async (
@@ -175,6 +205,8 @@ public static class AnimaEndpoints
         .WithSummary("Delete a secret")
         .WithDescription("Permanently deletes a secret from the project.");
     }
+
+
 }
 
 public record CreateAnimaRequest(string Definition, string Value, string Description,string Environment);

@@ -160,8 +160,8 @@ public class TenantRepository
         using var connection = _connectionFactory.CreateConnection();
 
         const string sql = @"
-            INSERT INTO projects (tenant_id, name, description,environment)
-            VALUES (@TenantId, @Name, @Description,@Environment)
+            INSERT INTO projects (tenant_id, name, description)
+            VALUES (@TenantId, @Name, @Description)
             RETURNING id";
 
         return await connection.ExecuteScalarAsync<Guid>(sql, new
@@ -207,16 +207,15 @@ public class TenantRepository
         const string sql = @"
             UPDATE animas
             SET value = @Value,
-                description = COALESCE(@Description, description),
-                environment = @Environment
-            WHERE Definition = @Definition";
+                description =  @Description
+            WHERE Definition = @Definition AND Environment = @Environment";
 
         var rowsAffected = await connection.ExecuteAsync(sql, new
         {
             Definition = definition,
             Value = value,
             Description = description,
-            Environment = environment
+            Environment = ((int)environment).ToString()
         });
 
         return rowsAffected > 0;
