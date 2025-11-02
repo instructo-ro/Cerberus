@@ -2,7 +2,7 @@
 
 A secure API-based secrets management system using PostgreSQL + Dapper with API key authentication.
 
-Showcase of the API can be found [here](https://claudiu-deving.github.io/Cerberus/)
+Showcase of the API can be found [here](https://instructo-ro.github.io/Cerberus/)
 
 ## Quick Start
 
