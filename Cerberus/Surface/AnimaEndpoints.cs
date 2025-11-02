@@ -1,4 +1,5 @@
 using Cerberus.Application;
+using Cerberus.Domain;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -81,7 +82,8 @@ public static class AnimaEndpoints
                 projectId,
                 request.Definition,
                 request.Value,
-                request.Description);
+                request.Description,
+                Enum.Parse<Domain.EnvironmentType>(request.Environment));
 
             return Results.Created($"/tenants/{tenantId}/projects/{projectId}/animas/{request.Definition}", new
             {
@@ -121,7 +123,7 @@ public static class AnimaEndpoints
                 return Results.NotFound(new { message = $"Anima with ID {definition} not found" });
             }
 
-            var success = await tenantService.UpdateAnimaAsync(definition, request.Value, request.Description);
+            var success = await tenantService.UpdateAnimaAsync(definition, request.Value, Enum.Parse<Domain.EnvironmentType>(request.Environment), request.Description);
 
             if(!success)
             {
@@ -175,5 +177,5 @@ public static class AnimaEndpoints
     }
 }
 
-public record CreateAnimaRequest(string Definition, string Value, string Description);
-public record UpdateAnimaRequest(string Value, string? Description);
+public record CreateAnimaRequest(string Definition, string Value, string Description,string Environment);
+public record UpdateAnimaRequest(string Value,string Environment, string? Description);

@@ -32,9 +32,9 @@ public class TenantService
         return await _tenantRepository.CreateProjectAsync(tenantId, name, description, environment);
     }
 
-    public async Task<Guid> CreateAnimaAsync(Guid projectId, string definition, string value, string description)
+    public async Task<Guid> CreateAnimaAsync(Guid projectId, string definition, string value, string description,EnvironmentType environment)
     {
-        return await _tenantRepository.CreateAnimaAsync(projectId, definition, value, description);
+        return await _tenantRepository.CreateAnimaAsync(projectId, definition, value,  description, environment);
     }
 
     public async Task<bool> DeleteAnimaAsync(string definition)
@@ -42,8 +42,8 @@ public class TenantService
         return await _tenantRepository.DeleteAnimaAsync(definition);
     }
 
-    public async Task<bool> UpdateAnimaAsync(string definition, string value, string? description = null)
+    public async Task<bool> UpdateAnimaAsync(string definition, string value,EnvironmentType environment, string? description = null)
     {
-        return await _tenantRepository.UpdateAnimaAsync(definition, value, description);
+        return await _tenantRepository.UpdateAnimaAsync(definition, value, environment, description);
     }
 }

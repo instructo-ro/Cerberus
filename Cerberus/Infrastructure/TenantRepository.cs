@@ -19,8 +19,8 @@ public class TenantRepository
         const string sql = @"
             SELECT
                 t.id, t.name,
-                p.id, p.name, p.description, p.environment,
-                a.definition, a.value, a.description
+                p.id, p.name, p.description,
+                a.definition, a.value, a.description,a.environment
             FROM tenants t
             LEFT JOIN projects p ON p.tenant_id = t.id
             LEFT JOIN animas a ON a.project_id = p.id
@@ -51,7 +51,6 @@ public class TenantRepository
                         Id: projectDto.Id,
                         Name: projectDto.Name,
                         Description: projectDto.Description,
-                        Environment: Enum.Parse<Domain.EnvironmentType>(projectDto.Environment),
                         Animas: animasList
                     );
                     projectDict.Add(project.Id, project);
@@ -64,7 +63,8 @@ public class TenantRepository
                     var anima = new Anima(
                         Definition: animaDto.Definition,
                         Value: animaDto.Value,
-                        Description: animaDto.Description
+                        Description: animaDto.Description,
+                        Environment: Enum.Parse<Domain.EnvironmentType>(animaDto.Environment)
                     );
                     ((List<Anima>)project.Animas).Add(anima);
                 }
@@ -117,7 +117,6 @@ public class TenantRepository
                         Id: projectDto.Id,
                         Name: projectDto.Name,
                         Description: projectDto.Description,
-                        Environment: Enum.Parse<Domain.EnvironmentType>(projectDto.Environment),
                         Animas: animasList
                     );
                     projectDict.Add(project.Id, project);
@@ -130,7 +129,8 @@ public class TenantRepository
                     var anima = new Anima(
                         Definition: animaDto.Definition,
                         Value: animaDto.Value,
-                        Description: animaDto.Description
+                        Description: animaDto.Description,
+                        Environment: Enum.Parse<Domain.EnvironmentType>(animaDto.Environment)
                     );
                     ((List<Anima>)project.Animas).Add(anima);
                 }
@@ -173,13 +173,13 @@ public class TenantRepository
         });
     }
 
-    public async Task<Guid> CreateAnimaAsync(Guid projectId, string definition, string value, string description)
+    public async Task<Guid> CreateAnimaAsync(Guid projectId, string definition, string value, string description,EnvironmentType environment)
     {
         using var connection = _connectionFactory.CreateConnection();
 
         const string sql = @"
-            INSERT INTO animas (project_id, definition, value, description)
-            VALUES (@ProjectId, @Definition, @Value, @Description)
+            INSERT INTO animas (project_id, definition, value, description,environment)
+            VALUES (@ProjectId, @Definition, @Value, @Description,@Environment)
             RETURNING id";
 
         return await connection.ExecuteScalarAsync<Guid>(sql, new
@@ -187,7 +187,8 @@ public class TenantRepository
             ProjectId = projectId,
             Definition = definition,
             Value = value,
-            Description = description
+            Description = description,
+            Environment = environment
         });
     }
 
@@ -200,21 +201,23 @@ public class TenantRepository
         return rowsAffected > 0;
     }
 
-    public async Task<bool> UpdateAnimaAsync(string definition, string value, string? description = null)
+    public async Task<bool> UpdateAnimaAsync(string definition, string value,EnvironmentType environment, string? description = null)
     {
         using var connection = _connectionFactory.CreateConnection();
 
         const string sql = @"
             UPDATE animas
             SET value = @Value,
-                description = COALESCE(@Description, description)
+                description = COALESCE(@Description, description),
+                environment = @Environment
             WHERE Definition = @Definition";
 
         var rowsAffected = await connection.ExecuteAsync(sql, new
         {
             Definition = definition,
             Value = value,
-            Description = description
+            Description = description,
+            Environment = environment
         });
 
         return rowsAffected > 0;
@@ -222,6 +225,6 @@ public class TenantRepository
      
     // DTOs for mapping
     private record TenantDto(Guid Id, string Name);
-    private record ProjectDto(Guid Id, string Name, string Description, string Environment);
-    private record AnimaDto(string Definition, string Value, string Description);
+    private record ProjectDto(Guid Id, string Name, string Description);
+    private record AnimaDto(string Definition, string Value, string Description,string Environment);
 }
