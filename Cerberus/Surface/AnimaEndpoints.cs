@@ -95,7 +95,7 @@ public static class AnimaEndpoints
         .WithDescription("Creates a new secret (anima) in the project with a definition name, value, and optional description.");
 
         // PUT update an existing anima's value
-        group.MapPut("/{definition:string}", async (
+        group.MapPut("/{definition}", async (
             Guid tenantId,
             Guid projectId,
             string definition,
@@ -135,7 +135,7 @@ public static class AnimaEndpoints
         .WithDescription("Updates the value and/or description of an existing secret.");
 
         // DELETE remove an anima
-        group.MapDelete("/{definition:guid}", async (
+        group.MapDelete("/{definition}", async (
             Guid tenantId,
             Guid projectId,
             string definition,
