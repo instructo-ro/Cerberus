@@ -58,6 +58,7 @@ public static class ProjectEndpoints
             Guid tenantId,
             Guid projectId,
             HttpContext httpContext,
+            [FromQuery] string? environment,
             [FromServices] TenantService tenantService,
             [FromServices] ApiKeyService apiKeyService) =>
         {
@@ -76,8 +77,15 @@ public static class ProjectEndpoints
             {
                 return Results.NotFound(new { message = $"Project with ID {projectId} not found in tenant {tenantId}" });
             }
+            if(environment is not null &&!Enum.GetValues<EnvironmentType>().Select(x => x.ToString().ToLower()).Any(e => e.Equals(environment.ToLower())))
+            {
+                return Results.BadRequest($"The requested environment type: {environment} does not exist");
+            }
+            var animas = environment is null 
+            ? project.Animas 
+            : project.Animas.Where(x=>x.Environment.ToString().Equals( environment,StringComparison.InvariantCultureIgnoreCase));
 
-            return Results.Ok(project.Animas);
+            return Results.Ok(animas);
         })
         .WithName("GetProjectAnimas")
         .WithSummary("List secrets for a project")
