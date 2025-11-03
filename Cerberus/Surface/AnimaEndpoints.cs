@@ -24,8 +24,9 @@ public static class AnimaEndpoints
     {
         webApplication.MapGet("/animas/{definition}",async (
             string definition,
-            [FromQuery] string environment, 
-            HttpContext httpContext, 
+            [FromQuery] string? environment,
+            [FromQuery] Guid? projectId,
+            HttpContext httpContext,
             [FromServices] ApiKeyService keyService,
             [FromServices] TenantService tenantService
             ) =>
@@ -36,8 +37,8 @@ public static class AnimaEndpoints
                 return Results.Unauthorized();
             }
             var tenant = await tenantService.GetTenantByIdAsync(apiKey.TenantId);
-            var project = tenant?.Projects.FirstOrDefault(p => p.Id==apiKey.ProjectId);
-            var anima = project?.Animas.FirstOrDefault(a => a.Definition.Equals(definition, StringComparison.OrdinalIgnoreCase) && a.Environment.ToString() == environment);
+            var project = projectId is null ? tenant?.Projects.FirstOrDefault() : tenant?.Projects.FirstOrDefault(x=>x.Id == projectId);
+            var anima = project?.Animas.FirstOrDefault(a => a.Definition.Equals(definition, StringComparison.OrdinalIgnoreCase) && a.Environment.ToString() == (environment??EnvironmentType.DEVELOPMENT.ToString()));
             if(anima is null)
             {
                 return Results.Unauthorized();

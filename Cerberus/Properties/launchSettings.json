@@ -2,7 +2,7 @@
   "profiles": {
     "Docker Database (Debug)": {
       "commandName": "Project",
-      "launchBrowser": true,
+      "launchBrowser": false,
       "launchUrl": "cerberus/scalar/v1",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
